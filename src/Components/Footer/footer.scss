@@ -1,0 +1,363 @@
+@import url('https://fonts.googleapis.com/css2?family=Anta&display=swap');
+:root {
+  --btn-icon-bg-color: #191d24;
+  --btn-icon-border-color: rgba(255, 255, 255, 0.3);
+  --btn-icon-shadow-color: rgba(255, 255, 255, 0.5);
+
+  --btn-social-bg-color: transparent;
+  --btn-social-border-color: transparent;
+
+  --footer-border-color: #191d24;
+
+  --link-color: gray;
+  --link-hover-color: rgba(255, 255, 255, 1);
+  --link-active-color: rgba(255, 255, 255, 1);
+
+  --bg-color: #010314;
+
+  --desc-copyright-color: #69758c;
+}
+.share-tech{
+  font-family: "Anta", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+
+body {
+  position: relative;
+
+  &>.btn.icon {
+    @media screen and (min-width: 768px) {
+      display: none;
+    }
+
+    @media screen and (max-width: 767.98px) {
+      position: fixed;
+      right: 20px;
+      bottom: 50px;
+      z-index: 99;
+    }
+  }
+}
+
+ul {
+  list-style: none;
+}
+
+.section {
+  background-color: var(--bg-color);
+
+  &.footer {
+    padding: 20px 10vw;
+
+    @media screen and (min-width: 768px) and (max-width: 1239.98px) {
+      padding: 20px;
+    }
+
+    @media screen and (max-width: 767.98px) {
+      padding: 20px;
+    }
+  }
+}
+
+@mixin link {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 21px;
+  
+  &:hover {
+    color: var(--link-hover-color);
+    transition: all 0.3s ease-in-out;
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.8),
+      0 0 15px rgba(255, 255, 255, 0.6);
+  }
+
+  &:active {
+    color: var(--link-active-color);
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.8),
+      0 0 15px rgba(255, 255, 255, 0.6);
+  }
+}
+
+@mixin btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 0;
+  border: 1px solid transparent;
+  background-color: transaprent;
+  cursor: pointer;
+}
+
+@mixin copyright {
+  font-size: calc(12px + (14 - 12) * ((100vw - 320px) / (1440 - 320)));
+  color: var(--desc-copyright-color);
+}
+
+.desc {
+  &.copyright {
+    @include copyright;
+  }
+}
+
+.logo {
+  width: 100%;
+  max-width: 200px;
+  height: 100%;
+  max-height: 35px;
+  display: block;
+
+  &.primary {
+    width: 200px;
+    min-width: 200px;
+    height: 35px;
+    min-height: 35px;
+    background: url(../../assets/logo_ishu.jpg) no-repeat 50% 50% / cover;
+  }
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 1000;
+
+  &__list {
+    max-width: 600px;
+    display: flex;
+    align-items: center;
+    height: 10rem;
+
+    @media screen and (max-width: 767.98px) {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+  }
+
+  &__item {
+    width: 100%;
+    flex: 1 1 calc(100% / 6);
+
+    &.active {
+      & .footer__link {
+        color: var(--link-active-color);
+        text-shadow: 0 0 3px rgba(255, 255, 255, 0.8),
+          0 0 15px rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    @media screen and (max-width: 767.98px) {
+      flex: 1 1 calc(100% / 3);
+    }
+
+    @media screen and (max-width: 463.98px) {
+      flex: 1 1 calc(100% / 2);
+    }
+  }
+
+  &__link {
+    @include link;
+
+    color: var(--link-color);
+    white-space: nowrap;
+    transition: all 0.3s ease-in-out;
+  }
+
+  &__header {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+
+    @media screen and (max-width: 767.98px) {
+      grid-template-columns: 1fr;
+    }
+
+    &>.btn.icon {
+      position: absolute;
+      right: 0;
+
+      @media screen and (max-width: 767.98px) {
+        display: none;
+      }
+    }
+  }
+
+  &__logo {
+    @media screen and (max-width: 767.98px) {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  &__copyright {
+    width: 100%;
+    border-top: 1px solid var(--footer-border-color);
+    padding: 20px;
+    text-align: center;
+  }
+}
+
+.btn {
+  @include btn;
+
+  &.icon {
+    width: 50px;
+    min-width: 50px;
+    height: 50px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--btn-icon-bg-color);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px var(--btn-icon-shadow-color);
+
+      &::before {
+        content: "";
+        position: absolute;
+        width: 150%;
+        height: 150%;
+        border: 2px solid var(--btn-icon-border-color);
+        border-radius: 50%;
+        animation: ripple 1s ease-out infinite;
+        z-index: 0;
+      }
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.1);
+      z-index: 0;
+      transition: width 0.4s ease, height 0.4s ease;
+    }
+
+    .icon {
+      position: relative;
+      z-index: 1;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover .icon {
+      transform: scale(1.2);
+    }
+  }
+
+  &.social {
+    width: 50px;
+    min-width: 50px;
+    height: 50px;
+    min-height: 50px;
+    border-radius: 50%;
+    background-color: var(--btn-social-bg-color);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    .icon {
+      transition: transform 0.3s ease, color 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    &:hover {
+      & .icon {
+        transform: scale(1.2) rotate(360deg);
+      }
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--btn-social-border-color);
+      z-index: 0;
+      transform: scale(1);
+      opacity: 0;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    &:hover {
+      &::after {
+        transform: scale(1.5);
+        opacity: 1;
+      }
+    }
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  gap: 20px;
+}
+
+.icon {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  object-fit: contain;
+  display: block;
+
+  &.drop-up {
+    background: url(https://ig-launch.test-project.pp.ua/img/drop-up.svg) no-repeat 50% 50% / contain;
+  }
+
+  &.twitter {
+    background: url(https://ig-launch.test-project.pp.ua/img/twitter.svg) no-repeat 50% 50% / contain;
+  }
+
+  &.youtube {
+    background: url(https://ig-launch.test-project.pp.ua/img/youtube.svg) no-repeat 50% 50% / contain;
+  }
+
+  &.telegram {
+    background: url(https://ig-launch.test-project.pp.ua/img/telegram.svg) no-repeat 50% 50% / contain;
+  }
+
+  &.whatsapp {
+    background: url(https://ig-launch.test-project.pp.ua/img/whatsapp.svg) no-repeat 50% 50% / contain;
+  }
+}
