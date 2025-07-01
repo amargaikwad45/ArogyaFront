@@ -31,7 +31,7 @@ nav{
     box-shadow: 0px 15px 10px -15px #111; 
     justify-content: space-evenly;
     align-items: center;
-    background: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+    background: #25A55F; /* Semi-transparent white */
     backdrop-filter: blur(10px); /* Apply blur effect */
     -webkit-backdrop-filter: blur(10px); /* For Safari */
     border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border for definition */
@@ -131,7 +131,7 @@ align-items: center;
   width: 2.1rem;
   height: 3px;
   border-radius: 3px;
-  background-color: rgb(206, 36, 36);
+  background-color: #ffff;
   transition: 0.5s;
 }
 
@@ -142,7 +142,7 @@ align-items: center;
   width: 2.1rem;
   height: 3px;
   border-radius: 3px;
-  background-color: rgb(206, 36, 36);
+  background-color: #ffff;
   transition: 0.5s;
 }
 

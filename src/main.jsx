@@ -24,6 +24,6 @@ createRoot(document.getElementById('root')).render(
 
     </Routes>
     <ScrollToTop/>
-    <Footer/>
+    {/* <Footer/> */}
   </Browser>
 )
