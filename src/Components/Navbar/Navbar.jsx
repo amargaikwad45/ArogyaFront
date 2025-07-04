@@ -50,48 +50,23 @@ const Navbar = () => {
                 Home
               </Link>
             </li>
-            <li className="nav_item share-tech">
-              <Link
-                to="/services"
-                className={location.pathname === '/services' ? 'active_nav' : ''}
-                onClick={handleLinkClick}
-              >
-                Services
-              </Link>
-            </li>
-            <li className="nav_item">
-              <Link
-                to="/blogs"
-                className={location.pathname === '/blogs' ? 'active_nav' : ''}
-                onClick={handleLinkClick}
-              >
-                Blogs
-              </Link>
-            </li>
+            
             <li className="nav_item ">
               <Link
                 to="/about"
                 className={location.pathname === '/about' ? 'active_nav' : ''}
                 onClick={handleLinkClick}
               >
-                About Me
+                About Us
               </Link>
             </li>
-            <li className="nav_item ">
-              <Link
-                to="/projects"
-                className={location.pathname === '/projects' ? 'active_nav' : ''}
-                onClick={handleLinkClick}
-              >
-                Projects
-              </Link>
-            </li>
+           
             <div className="contact-btn ">
               <Link 
               to="/contact" 
               onClick={handleLinkClick}
               className={`bg-[#77bfa3] text-[#fff5e1] font-bold py-2 px-4 rounded hover:bg-[#e65a4d] hover:text-[#ffebd0] transition-all duration-300`}>
-                Contact Me
+                Contact Support
               </Link>
             </div>
 

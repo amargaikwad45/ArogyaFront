@@ -11,13 +11,8 @@ async function updateSessionState(appName, userId, sessionId, newContext) {
   try {
     // The ADK API server uses a PUT request to replace the state.
     const response = await fetch(`http://localhost:8000/apps/${appName}/users/${userId}/sessions/${sessionId}`, {
-      method: 'PUT',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        // The state must match the agent's expected root structure
-        user_context: newContext,
-        interaction_history: [],
-      }),
     });
     if (!response.ok) {
       throw new Error("Failed to update session state.");
@@ -41,7 +36,7 @@ export default function ChatComponent({ userId, sessionId, initialContext }) {
   useEffect(() => {
     if (initialContext) {
       // Update the session on the backend with the new context
-      updateSessionState(APP_NAME, userId, sessionId, initialContext);
+      // updateSessionState(APP_NAME, userId, sessionId, initialContext);
 
       // Create a personalized welcome message
       const welcomeMessage = {
@@ -133,7 +128,7 @@ export default function ChatComponent({ userId, sessionId, initialContext }) {
         <p className="text-sm text-gray-500">Logged in as: {userId}</p>
       </header>
       
-      <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+      <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 w-[80vw] max-w-420:w-full m-auto">
         {messages.map((msg, index) => (
           <div key={index} className={`flex items-end ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.role === 'agent' && (
