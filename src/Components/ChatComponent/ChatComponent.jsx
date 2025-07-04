@@ -1,13 +1,59 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+/**
+ * Updates the session state with the context extracted from the PDF.
+ * @param {string} appName
+ * @param {string} userId
+ * @param {string} sessionId
+ * @param {object} newContext
+ */
+async function updateSessionState(appName, userId, sessionId, newContext) {
+  try {
+    // The ADK API server uses a PUT request to replace the state.
+    const response = await fetch(`http://localhost:8000/apps/${appName}/users/${userId}/sessions/${sessionId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        // The state must match the agent's expected root structure
+        user_context: newContext,
+        interaction_history: [],
+      }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to update session state.");
+    }
+    console.log("Session state successfully updated with PDF context.");
+  } catch (error) {
+    console.error("Error updating session state:", error);
+    alert("Could not update the session with your report details. The chat may not be personalized.");
+  }
+}
 
-export default function ChatComponent({ userId, sessionId }) {
+
+export default function ChatComponent({ userId, sessionId, initialContext }) {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isAgentTyping, setIsAgentTyping] = useState(false);
   const messagesEndRef = useRef(null);
   const APP_NAME = 'orchestrator_agent';
 
+  // This effect runs only once when the component mounts
+  useEffect(() => {
+    if (initialContext) {
+      // Update the session on the backend with the new context
+      updateSessionState(APP_NAME, userId, sessionId, initialContext);
+
+      // Create a personalized welcome message
+      const welcomeMessage = {
+        role: 'agent',
+        author: 'Arogya Mitra',
+        content: `Hello, ${initialContext.user_name}. I have reviewed your report. How can I help you today regarding your health?`
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, [userId, sessionId, initialContext]); // Dependencies for the effect
+
+  // The rest of the ChatComponent (handleSendMessage, JSX, etc.) remains unchanged...
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAgentTyping]);
@@ -23,8 +69,7 @@ export default function ChatComponent({ userId, sessionId }) {
     setIsAgentTyping(true);
 
     try {
-      // **FIXED LOGIC**: Use a single POST request and read its streaming response.
-      const response = await fetch('http://localhost:8000/run_sse', {
+      const response = await fetch('http://localhost:8001/run_sse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -36,40 +81,41 @@ export default function ChatComponent({ userId, sessionId }) {
         }),
       });
 
-      if (!response.body) {
-        throw new Error("Response body is missing.");
-      }
+      if (!response.body) throw new Error("Response body is missing.");
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let agentResponse = '';
+      let agentAuthor = '';
 
-      // Read the stream chunk by chunk
       while (true) {
         const { done, value } = await reader.read();
-        if (done) {
-          break; // Exit loop when stream is finished
-        }
+        if (done) break;
         
-        // SSE can send multiple events in one chunk, separated by `\n\n`
         const chunk = decoder.decode(value, { stream: true });
         const events = chunk.split('\n\n').filter(Boolean);
 
         for (const eventString of events) {
           if (eventString.startsWith('data:')) {
             const jsonString = eventString.substring(5);
-            const eventData = JSON.parse(jsonString);
-            
-            // Look for text from sub-agents
-            if (eventData.author !== 'arogya_mitra_orchestrator' && eventData.content?.parts?.[0]?.text) {
-              agentResponse += eventData.content.parts[0].text;
+            try {
+              const eventData = JSON.parse(jsonString);
+              
+              if (eventData.author !== 'arogya_mitra_orchestrator' && eventData.content?.parts?.[0]?.text) {
+                agentResponse += eventData.content.parts[0].text;
+                if (!agentAuthor) {
+                  agentAuthor = eventData.author;
+                }
+              }
+            } catch (jsonError) {
+              console.error("Failed to parse JSON chunk:", jsonString);
             }
           }
         }
       }
 
       if (agentResponse) {
-        setMessages(prev => [...prev, { role: 'agent', content: agentResponse }]);
+        setMessages(prev => [...prev, { role: 'agent', content: agentResponse, author: agentAuthor || 'Agent' }]);
       }
 
     } catch (error) {
@@ -89,20 +135,30 @@ export default function ChatComponent({ userId, sessionId }) {
       
       <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
         {messages.map((msg, index) => (
-          <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-lg px-4 py-2 rounded-xl shadow ${msg.role === 'user' ? 'bg-gradient-to-r from-[#25A55F] to-[#56ab2f] text-white' : 'bg-white text-gray-800'}`}>
-              <p className="whitespace-pre-wrap">{msg.content}</p>
+          <div key={index} className={`flex items-end ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            {msg.role === 'agent' && (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm mr-3 flex-shrink-0">
+                    AI
+                </div>
+            )}
+            <div className={`max-w-lg ${msg.role === 'user' ? 'ml-auto' : ''}`}>
+                {msg.author && (
+                    <p className="text-xs text-gray-500 mb-1 ml-2">{msg.author}</p>
+                )}
+                <div className={`px-4 py-2 rounded-xl shadow ${msg.role === 'user' ? 'bg-gradient-to-r from-[#25A55F] to-[#56ab2f] text-white' : 'bg-white text-gray-800'}`}>
+                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                </div>
             </div>
           </div>
         ))}
         {isAgentTyping && (
           <div className="flex justify-start">
              <div className="max-w-lg px-4 py-2 rounded-xl shadow bg-white text-gray-800">
-                <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse"></div>
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse [animation-delay:0.2s]"></div>
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse [animation-delay:0.4s]"></div>
-                </div>
+               <div className="flex items-center space-x-2">
+                   <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse"></div>
+                   <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse [animation-delay:0.2s]"></div>
+                   <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse [animation-delay:0.4s]"></div>
+               </div>
             </div>
           </div>
         )}
@@ -111,18 +167,11 @@ export default function ChatComponent({ userId, sessionId }) {
 
       <footer className="bg-white p-4 border-t">
         <form onSubmit={handleSendMessage} className="flex items-center space-x-4">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Ask a health question..."
-            className="flex-1 w-full px-4 py-3 text-lg text-gray-700 bg-gray-200 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            disabled={isAgentTyping}
-          />
+          <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Ask a health question..." className="flex-1 w-full px-4 py-3 text-lg text-gray-700 bg-gray-200 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" disabled={isAgentTyping} />
           <button
             type="submit"
             disabled={isAgentTyping || !inputValue.trim()}
-            className="px-6 py-3 font-semibold text-white bg-[#25A55F] rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#25A55F] disabled:bg-[#25A55F] disabled:cursor-not-allowed"
+            className="px-6 py-3 font-semibold text-white bg-[#25A55F] rounded-md hover:bg-[#208a4e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#25A55F] disabled:opacity-70 disabled:cursor-not-allowed"
           >
             Send
           </button>

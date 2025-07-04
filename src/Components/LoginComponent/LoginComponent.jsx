@@ -10,21 +10,22 @@ import React, { useState, useEffect, useRef } from 'react';
  */
 async function createSession(appName, userId) {
   try {
-    const response = await fetch(`http://localhost:8000/apps/${appName}/users/${userId}/sessions`, {
+    const response = await fetch(`http://localhost:8001/apps/${appName}/users/${userId}/sessions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       // This is the initial state for the Arogya Mitra agent
-      body: JSON.stringify({
-        user_context: {
-          user_name: userId, // Use the login name as the user_name
-          personalInfo: { age: 45, sex: 'Male' }, // Default values
-          diagnosedConditions: ['Hypertension'],
-          currentMedications: [{}],
-        },
-        interaction_history: [],
-      }),
+      // body: JSON.stringify({
+      //   user_context: {
+      //     user_name: userId, // Use the login name as the user_name
+      //     personalInfo: { age: 45, sex: 'Male' }, // Default values
+      //     diagnosedConditions: ['Hypertension'],
+      //     currentMedications: [{}],
+      //   },
+      //   interaction_history: [],
+      // }),
+      body: JSON.stringify({}),
     });
 
     if (!response.ok) {
@@ -45,8 +46,8 @@ async function createSession(appName, userId) {
 export default function LoginComponent({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const APP_NAME = 'orchestrator_agent'; // Your ADK application name
-
+  const APP_NAME = 'orchestrator_agent';
+  // const APP_NAME = 'orchestratt';
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!username.trim()) {
